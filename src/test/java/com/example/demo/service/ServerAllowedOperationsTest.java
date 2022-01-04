@@ -1,8 +1,11 @@
 package com.example.demo.service;
 
+import static com.example.demo.entity.Server.Type.JBOSS;
+import static com.example.demo.entity.Server.Type.TOMCAT;
 import static com.example.demo.entity.Server.Type.WEB_LOGIC;
 import static com.example.demo.entity.ServerBuilder.aServer;
 import static com.example.demo.service.OperationStatus.ALLOWED;
+import static com.example.demo.service.OperationStatus.RESTRICTED;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.example.demo.testutil.DBTest;
@@ -44,5 +47,32 @@ class ServerAllowedOperationsTest extends PostgresSuite {
     for (Long serversId : serversIds) {
       assertEquals(ALLOWED, operations.get(serversId));
     }
+  }
+
+  @Test
+  @DisplayName("Should not allow some servers to switch on")
+  void shouldNotAllowSomeServersToSwitchOn() {
+    final var s1 = db.save(
+        aServer().withSwitched(true).withType(JBOSS)
+    );
+    final var s2 = db.save(
+        aServer().withSwitched(false).withType(TOMCAT)
+    );
+    final var webLogic = aServer().withSwitched(false).withType(WEB_LOGIC);
+    final var s3 = db.save(webLogic);
+    db.saveAll(
+        webLogic.withSwitched(true),
+        webLogic.withSwitched(true),
+        webLogic.withSwitched(true)
+    );
+    final var serversIds = List.of(s1.getId(), s2.getId(), s3.getId());
+
+    final var operations = allowedOperations.getServersSwitchOnStatus(
+        serversIds
+    );
+
+    assertEquals(RESTRICTED, operations.get(s1.getId()));
+    assertEquals(ALLOWED, operations.get(s2.getId()));
+    assertEquals(RESTRICTED, operations.get(s3.getId()));
   }
 }

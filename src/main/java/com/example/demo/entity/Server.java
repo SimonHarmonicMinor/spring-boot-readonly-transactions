@@ -1,10 +1,13 @@
 package com.example.demo.entity;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import com.sun.istack.NotNull;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -19,10 +22,20 @@ public class Server {
   private Long id;
 
   @NotNull
-  private String name = "server_name";
+  private String name;
 
   @NotNull
-  private boolean switched = false;
+  private boolean switched;
+
+  @Enumerated(STRING)
+  @NotNull
+  private Type type;
+
+  public enum Type {
+    JBOSS,
+    TOMCAT,
+    WEB_LOGIC
+  }
 
   public Long getId() {
     return id;
@@ -36,11 +49,19 @@ public class Server {
     return switched;
   }
 
+  public Type getType() {
+    return type;
+  }
+
   public void setName(String name) {
     this.name = name;
   }
 
   public void setSwitched(boolean switched) {
     this.switched = switched;
+  }
+
+  public void setType(Type type) {
+    this.type = type;
   }
 }

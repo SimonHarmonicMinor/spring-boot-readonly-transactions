@@ -46,11 +46,19 @@ public class TestDBFacade {
     });
   }
 
-  public <T> T save(T entity) {
-    return transactionTemplate.execute(status -> {
-      testEntityManager.persistAndFlush(entity);
-      return entity;
+  public void saveAll(Builder<?>... builders) {
+    transactionTemplate.execute(status -> {
+      for (Builder<?> b : builders) {
+        save(b);
+      }
+      return null;
     });
+  }
+
+  public <T> T save(Builder<T> builder) {
+    return transactionTemplate.execute(
+        status -> testEntityManager.persistAndFlush(builder.build())
+    );
   }
 
   @TestConfiguration

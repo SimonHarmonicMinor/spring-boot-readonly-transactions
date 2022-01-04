@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.jdbc.JdbcTestUtils;
 import org.springframework.transaction.support.TransactionTemplate;
 
 public class TestDBFacade {
@@ -12,6 +14,15 @@ public class TestDBFacade {
   private TestEntityManager testEntityManager;
   @Autowired
   private TransactionTemplate transactionTemplate;
+  @Autowired
+  private JdbcTemplate jdbcTemplate;
+
+  public void cleanDatabase() {
+    transactionTemplate.execute(status -> {
+      JdbcTestUtils.deleteFromTables(jdbcTemplate, "server");
+      return null;
+    });
+  }
 
   public <T> Builder<T> persistedOnce(Builder<T> builder) {
     return new Builder<T>() {
@@ -43,7 +54,7 @@ public class TestDBFacade {
   }
 
   @TestConfiguration
-    static class Config {
+  static class Config {
 
     @Bean
     public TestDBFacade testDBFacade() {

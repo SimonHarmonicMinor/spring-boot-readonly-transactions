@@ -38,6 +38,12 @@ public class TestDBFacade {
     };
   }
 
+  public <T> T find(Object id, Class<T> entityClass) {
+    return transactionTemplate.execute(
+        status -> testEntityManager.find(entityClass, id)
+    );
+  }
+
   public <T> Builder<T> persisted(Builder<T> builder) {
     return () -> transactionTemplate.execute(status -> {
       final var entity = builder.build();

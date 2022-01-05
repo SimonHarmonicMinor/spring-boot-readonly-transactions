@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
 import static java.lang.String.format;
+import static org.springframework.transaction.annotation.Propagation.REQUIRES_NEW;
 
+import com.example.demo.annotation.ReadTransactional;
 import com.example.demo.exception.OperationRestrictedException;
 import com.example.demo.repository.ServerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +18,21 @@ public class ServerRestrictions {
 
   @Transactional(readOnly = true)
   public void checkSwitchOn(Long serverId) {
+    innerCheckSwitchOn(serverId);
+  }
+
+  @Transactional(readOnly = true, propagation = REQUIRES_NEW)
+  public void checkSwitchOnRequiresNew(Long serverId) {
+    innerCheckSwitchOn(serverId);
+  }
+
+  @Transactional(readOnly = true, noRollbackFor = Exception.class)
+  public void checkSwitchOnNoRollBackFor(Long serverId) {
+    innerCheckSwitchOn(serverId);
+  }
+
+  @ReadTransactional
+  public void checkSwitchOnReadTransactional(Long serverId) {
     innerCheckSwitchOn(serverId);
   }
 

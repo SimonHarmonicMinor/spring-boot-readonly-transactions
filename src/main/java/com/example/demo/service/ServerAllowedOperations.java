@@ -5,6 +5,7 @@ import static com.example.demo.service.OperationStatus.RESTRICTED;
 import static com.example.demo.service.OperationStatus.SERVER_IS_ABSENT;
 import static java.lang.String.format;
 
+import com.example.demo.annotation.ReadTransactional;
 import com.example.demo.exception.OperationRestrictedException;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,6 +28,30 @@ public class ServerAllowedOperations {
   @Transactional(readOnly = true)
   public Map<Long, OperationStatus> getServersSwitchOnStatus(Collection<Long> serverIds) {
     return innerGetServersSwitchOnStatus(serverIds, serverRestrictions::checkSwitchOn);
+  }
+
+  @Transactional(readOnly = true)
+  public Map<Long, OperationStatus> getServersSwitchOnStatusRequiresNew(
+      Collection<Long> serverIds
+  ) {
+    return innerGetServersSwitchOnStatus(serverIds, serverRestrictions::checkSwitchOnRequiresNew);
+  }
+
+  @Transactional(readOnly = true)
+  public Map<Long, OperationStatus> getServersSwitchOnStatusNoRollBackFor(
+      Collection<Long> serverIds
+  ) {
+    return innerGetServersSwitchOnStatus(serverIds, serverRestrictions::checkSwitchOnNoRollBackFor);
+  }
+
+  @ReadTransactional
+  public Map<Long, OperationStatus> getServersSwitchOnStatusReadTransactional(
+      Collection<Long> serverIds
+  ) {
+    return innerGetServersSwitchOnStatus(
+        serverIds,
+        serverRestrictions::checkSwitchOnReadTransactional
+    );
   }
 
   private Map<Long, OperationStatus> innerGetServersSwitchOnStatus(
